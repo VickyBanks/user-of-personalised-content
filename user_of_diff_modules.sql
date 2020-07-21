@@ -30,3 +30,25 @@ vi. We can find the visits that clicked to content from a TLEO page, but it will
 Our process for tracking a user from clicking a homepage module to playing content ignores any TLEO step. So any journey moving homepage-rec-module -> TLEO -> content -> start viewing would give the play start credited to the rec-module.
 Our process for tacking at a page level wouldn't ignore that TLEO step so the same journey would be credited as coming from the TLEO page. This will lead to double counting e.g 3.a and 3.c. I will try to eliminate this double counting but it's going to be tricky in the time frame.
 */
+
+
+/*
+
+track from modules not including TLEO to get the number from homepage modules
+-- this will give us the number from each module ignoring the TLEO
+-- this will give us autoplay
+
+track including TLEO
+-- this will give us those who click on the CTA.
+
+the differencew will tell us who went rec-module - tleo - content and who just went rec-module - content
+
+Can do
+from first script
+- number from rec A
+from second script
+-number from tleo
+-number from rec B
+
+Then A-B are the number that went to the TLEO
+ */
