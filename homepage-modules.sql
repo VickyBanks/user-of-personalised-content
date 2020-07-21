@@ -76,7 +76,6 @@ WHERE a.dt between (SELECT min_date FROM central_insights_sandbox.vb_date_range)
 ;
 
 
---SELECT platform, exp_group, count(visit_id) FROM central_insights_sandbox.vb_foi_ids_temp GROUP BY 1,2 ORDER BY 2,1;
 
 DROP TABLE IF EXISTS central_insights_sandbox.vb_foi_ids;
 CREATE TABLE central_insights_sandbox.vb_foi_ids AS
@@ -114,7 +113,7 @@ FROM central_insights_sandbox.vb_foi_ids a -- all the IDs from publisher
                   trunc(date_trunc('week', cast(a.dt as date))) = d.date_of_segmentation)
 ORDER BY a.dt, c.bbc_hid3, visit_id
 ;
-SELECT count(distinct bbc_hid3) FROM central_insights_sandbox.vb_foi_ids_hid;
+SELECT count(distinct bbc_hid3) FROM central_insights_sandbox.vb_foi_ids_hid; --13,153,950
 ------------------------------------------------------- Step 2: Impressions - Web only--------------------------------------------------------------------------------------------
 -- Get all impressions to the each module for this exp group
 DROP TABLE IF EXISTS central_insights_sandbox.vb_module_impressions;
@@ -139,7 +138,7 @@ WHERE a.destination = 'PS_IPLAYER'
   --AND a.metadata ILIKE '%responsive%' -- metadata field has issues atm so don't use this
   AND b.platform = 'web'
 ;
-
+SELECT count(distinct bbc_hid3) FROM central_insights_sandbox.vb_module_impressions; --3,010,884
 
 ---------------------------------------- Step 3: Identify all the clicks to content ---------------------------------------
 
@@ -271,6 +270,7 @@ FROM central_insights_sandbox.vb_foi_deeplinks_temp
 WHERE row_count = 1;
 
 ------------- Join all the different types of click to content into one table -------------
+
 DROP TABLE IF EXISTS central_insights_sandbox.vb_foi_all_content_clicks;
 -- Regular clicks
 CREATE TABLE central_insights_sandbox.vb_foi_all_content_clicks
@@ -285,6 +285,7 @@ SELECT dt,
        placement,
        result AS click_destination_id
 FROM central_insights_sandbox.vb_foi_content_clicks;
+
 
 -- Autoplay
 INSERT INTO central_insights_sandbox.vb_foi_all_content_clicks
@@ -342,7 +343,6 @@ SELECT DISTINCT a.dt,
                 a.attribute,
                 a.placement,
                 a.result AS content_id,
-                CAST(NULL AS varchar(400)) AS think_group,
                 ISNULL(c.series_id,'unknown') AS series_id,
                 ISNULL(c.brand_id, 'unknown') AS brand_id
 FROM s3_audience.publisher a
@@ -373,8 +373,7 @@ SELECT dt,
        container,
        attribute,
        placement,
-       click_destination_id AS content_id,
-       think_group
+       click_destination_id AS content_id
 FROM central_insights_sandbox.vb_foi_all_content_clicks;
 
 -- Add in row number for each visit
@@ -401,7 +400,6 @@ SELECT a.dt,
        a.unique_visitor_cookie_id,
        a.bbc_hid3,
        a.visit_id,
-       a.think_group                        AS click_think_group,
        a.event_position                     AS click_event_position,
        a.container                          AS click_container,
        a.attribute                          AS click_attibute,
@@ -488,7 +486,7 @@ SELECT dt,
        unique_visitor_cookie_id,
        bbc_hid3,
        visit_id,
-       click_think_group,
+
        click_attibute,
        click_container,
        click_placement,
@@ -570,7 +568,6 @@ SELECT dt,
        unique_visitor_cookie_id,
        bbc_hid3,
        visit_id,
-       click_think_group,
        click_event_position,
        click_container,
        click_placement,
@@ -602,7 +599,6 @@ SELECT a.dt,
        b.frequency_band,
        b.frequency_group_aggregated,
        a.visit_id,
-       a.click_think_group,
        a.click_event_position,
        a.click_container,
        a.click_placement,
@@ -615,8 +611,6 @@ SELECT a.dt,
        CASE WHEN a.watched_flag = 'iplxp-ep-watched' THEN 1
            ELSE 0 END as watched_flag,
        b.platform,
-       b.exp_group,
-       --b.exp_subgroup,
        b.age_range
 FROM central_insights_sandbox.vb_foi_valid_watched a
          LEFT JOIN central_insights_sandbox.vb_foi_ids_hid b
@@ -627,8 +621,8 @@ FROM central_insights_sandbox.vb_foi_valid_watched a
 -- There will be visits where nothing happened so this table will have fewer hids than the hid table.
 
 -- Final table (labelled with exp name)
-DROP TABLE IF EXISTS central_insights_sandbox.vb_foi_final;
-CREATE TABLE central_insights_sandbox.vb_foi_final AS
+DROP TABLE IF EXISTS central_insights_sandbox.vb_foi_final_no_tleo;
+CREATE TABLE central_insights_sandbox.vb_foi_final_no_tleo AS
     SELECT * FROM central_insights_sandbox.vb_foi_valid_watched_enriched;
 
 
@@ -857,7 +851,7 @@ SELECT DISTINCT dt FROM central_insights_sandbox.vb_foi_ids_hid;
 
 ---------think groups-----------------------
 with module_metrics AS (
-    SELECT click_think_group,
+    SELECT
            bbc_hid3,
            sum(start_flag)   AS num_starts,
            sum(watched_flag) as num_watched
@@ -868,13 +862,13 @@ with module_metrics AS (
 ),
      user_stats AS (
          SELECT DISTINCT a.bbc_hid3,
-                         b.click_think_group,
+
                          ISNULL(b.num_starts, 0)  as num_starts,
                          ISNULL(b.num_watched, 0) AS num_watched
          FROM central_insights_sandbox.vb_foi_ids_hid a -- get all users, even those who didn't click
                   LEFT JOIN module_metrics b --Gives each user and their total starts/watched from that module
                             on a.bbc_hid3 = b.bbc_hid3)
-SELECT click_think_group, count(bbc_hid3) as num_clicks, sum(num_starts) as num_starts, sum(num_watched) as num_watched
+SELECT  count(bbc_hid3) as num_clicks, sum(num_starts) as num_starts, sum(num_watched) as num_watched
 FROM user_stats
 GROUP BY 1;
 ;
