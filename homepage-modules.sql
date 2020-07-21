@@ -486,7 +486,6 @@ SELECT dt,
        unique_visitor_cookie_id,
        bbc_hid3,
        visit_id,
-
        click_attibute,
        click_container,
        click_placement,
@@ -624,6 +623,16 @@ FROM central_insights_sandbox.vb_foi_valid_watched a
 DROP TABLE IF EXISTS central_insights_sandbox.vb_foi_final_no_tleo;
 CREATE TABLE central_insights_sandbox.vb_foi_final_no_tleo AS
     SELECT * FROM central_insights_sandbox.vb_foi_valid_watched_enriched;
+
+
+SELECT central_insights_sandbox.udf_dataforce_page_type(click_placement) AS page_type,
+    click_container,
+    count (distinct bbc_hid3) as num_si_users,
+    count (visit_id) as num_clicks,
+    sum(start_flag) as num_starts,
+    sum(watched_flag) as num_completes
+FROM central_insights_sandbox.vb_foi_final_no_tleo
+GROUP BY 1, 2;
 
 
 
