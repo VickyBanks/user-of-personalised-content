@@ -598,5 +598,5 @@ FROM central_insights_sandbox.vb_foi_2_valid_watched a
 
 -- Final table (labelled with exp name)
 DROP TABLE IF EXISTS central_insights_sandbox.vb_foi_2_final_no_tleo;
-CREATE TABLE central_insights_sandbox.vb_foi_2_final_no_tleo AS
+CREATE TABLE central_insights_sandbox.vb_foi_2_final_tleo AS
     SELECT * FROM central_insights_sandbox.vb_foi_2_valid_watched_enriched;
