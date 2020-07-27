@@ -4,9 +4,9 @@ SELECT count(DISTINCT hashed_id) FROM rec_all_journeys_complete; --       30,691
 SELECT count(DISTINCT hashed_id) FROM watched_all_journeys_complete; -- 127,750
 SELECT count(DISTINCT bbc_hid3) FROM cta_TLEO_clicks; --  4,556,852
 SELECT count(DISTINCT bbc_hid3) FROM end_of_playback; --  7,296,023
-SELECT count(DISTINCT bbc_hid3) FROM homepage_modules; -- 6,756,069
+SELECT count(DISTINCT bbc_hid3) FROM homepage_modules; -- 6,833,606
 
-SELECT count(DISTINCT bbc_hid3) FROM dist_users;
+SELECT count(DISTINCT bbc_hid3) FROM dist_users; --9,097,692
 
 -- All users in one table
 DROP TABLE IF EXISTS dist_users;
@@ -61,6 +61,7 @@ SELECT bbc_hid3
 FROM combined;
 
 -- From the end of playback
+DROP TABLE end_of_playback;
 CREATE TABLE end_of_playback AS
 SELECT distinct central_insights_sandbox.udf_dataforce_page_type(click_placement) AS page_type,
                 CASE
@@ -72,6 +73,7 @@ WHERE page_type = 'episode_page'
   AND click_container ILIKE '%next%';
 
 --- From homepage modules
+DROP TABLE homepage_modules;
 CREATE TABLE homepage_modules AS
 with both_paths_comb AS (
     -- homepage -> content and homepage -> TLEO -> content
@@ -87,4 +89,5 @@ SELECT a.page_type,
 FROM both_paths_comb a
 WHERE a.click_container = 'module-recommendations-recommended-for-you'
    OR a.click_container = 'module-watching-continue-watching'
+OR a.click_container = 'module-if-you-liked'
 ;

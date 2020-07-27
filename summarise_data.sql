@@ -9,6 +9,10 @@ LIMIT 5;
 SELECT count(distinct bbc_hid3) FROM central_insights_sandbox.vb_foi_final_no_tleo; -- 10,769,709
 SELECT count(distinct bbc_hid3) FROM central_insights_sandbox.vb_foi_2_final_tleo; --  11,305,564
 
+-- How many distinct visits in total?
+SELECT count(distinct dt||visit_id) FROM central_insights_sandbox.vb_foi_final_no_tleo; -- 82,568,001
+SELECT count(distinct dt||visit_id) FROM central_insights_sandbox.vb_foi_2_final_tleo; --  90,128,569
+
 ---- From homepage modules
 with both_paths_comb AS (
     -- homepage -> content and homepage -> TLEO -> content
@@ -50,7 +54,10 @@ FROM both_paths_comb a
          JOIN direct_path b ON a.page_type = b.page_type and a.click_container = b.click_container
 WHERE a.click_container = 'module-recommendations-recommended-for-you'
    OR a.click_container = 'module-watching-continue-watching'
+OR a.click_container = 'module-if-you-liked'
 ;
+
+SELECT DISTINCT click_container FROM central_insights_sandbox.vb_foi_final_no_tleo WHERE click_placement = 'iplayer.tv.page';
 
 --- From end of playback
 SELECT distinct central_insights_sandbox.udf_dataforce_page_type(click_placement) AS page_type,
@@ -105,3 +112,11 @@ SELECT click_container,
        sum(watched_flag)        as num_completes
 FROM combined
 GROUP BY 1--,2;
+
+
+---- Getting a final distinct set of users
+--tables
+SELECT count(DISTINCT hashed_id) FROM rec_all_journeys_complete; -- 30,691
+SELECT count(DISTINCT hashed_id) FROM watched_all_journeys_complete; -- 127,750
+SELECT count(DISTINCT bbc_hid3) FROM cta_TLEO_clicks;
+

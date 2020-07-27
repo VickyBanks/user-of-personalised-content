@@ -2,19 +2,19 @@
 1. The number of distinct SI users that have played an episode from...
 a. rec row on homepage - DONE
 b. end of playback - DONE
-c. recommendations page
+c. recommendations page - DONE
 
-2. Repeat 1 but find this value as a % of all distinct signed in users.
+2. Repeat 1 but find this value as a % of all distinct signed in users. - DONE
 
 3. The number of distinct SI users that have played an episode from...
 a. homepage continue watching rail -- DONE
-b. the my-watching page
+b. the my-watching page - DONE
 c. the top featured episode on a TLEO page (CTA) which can be 'start-watching', 'resume' or 'my-next-episode' - DONE
 
-4. Repeat 3 but find this value as a % of all distinct signed in users.
+4. Repeat 3 but find this value as a % of all distinct signed in users. - DONE
 
-5. Summary of the above i.e number of distinct SI users that are counted in 1 or 3.
-6. Repeat 5 but find this value as a % of all distinct signed in users.
+5. Summary of the above i.e number of distinct SI users that are counted in 1 or 3. - DONE
+6. Repeat 5 but find this value as a % of all distinct signed in users. - DONE
 
 
 Questions/ What i'm going to do.
